@@ -1,11 +1,11 @@
 numpy>=1.21.0
 pandas>=1.3.0
-tensorflow>=2.8.0
+tensorflow>=2.10.0  # More flexible version range
 scikit-learn>=1.0.0
-keras>=2.8.0
 sklearn-crfsuite>=0.3.6
 nltk>=3.6.0
-seaborn>=0.11.0
 matplotlib>=3.5.0
-highlight-text>=0.0.8
-scipy>=1.7.0
+seaborn>=0.11.0
+joblib>=1.0.0
+openpyxl>=3.0.0  # For Excel file reading
+tqdm>=4.60.0     # For progress bars

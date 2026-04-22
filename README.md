@@ -32,12 +32,20 @@ Both models are trained on a curated Quranic dataset with linguistic features in
 ```
 Quranic-NER/
 ├── quranic_ner_bilstm_crf.ipynb    # Main notebook with both models
+├── main.py                         # Command-line interface for training/prediction
+├── validate.py                     # Validation script to test installation
 ├── data/
 │   └── quranic_ner_dataset.xlsx   # Quranic NER dataset
-├── requirements.txt                # Python dependencies
-├── .gitignore                      # Git ignore configuration
-├── LICENSE                         # MIT License
-└── README.md                       # This file
+├── src/                           # Modular Python package
+│   ├── __init__.py               # Package initialization
+│   ├── preprocessing.py          # Data preprocessing utilities
+│   ├── bilstm.py                 # BiLSTM model implementation
+│   └── crf.py                    # CRF model implementation
+├── models/                        # Saved trained models
+├── requirements.txt               # Python dependencies
+├── .gitignore                     # Git ignore configuration
+├── LICENSE                        # MIT License
+└── README.md                      # This file
 ```
 
 ## 🚀 Getting Started
@@ -73,12 +81,80 @@ Quranic-NER/
    pip install -r requirements.txt
    ```
 
-4. **Run the Notebook**
+4. **Validate Installation** (Recommended)
+   ```bash
+   python validate.py
+   ```
+   This script will test that all modules work correctly and inform you about available functionality.
+
+5. **Run the Application**
+
+   **Option A: Command Line Interface (Recommended)**
+   ```bash
+   # Train both models
+   python main.py --train
+
+   # Train specific model
+   python main.py --model bilstm --train
+   python main.py --model crf --train
+
+   # Make predictions
+   python main.py --predict "يَا أَيُّهَا الَّذِينَ آمَنُوا اتَّقُوا اللَّهَ"
+
+   # Compare models
+   python main.py --compare
+
+   # Get help
+   python main.py --help
+   ```
+
+   **Option B: Jupyter Notebook**
    ```bash
    jupyter notebook quranic_ner_bilstm_crf.ipynb
    ```
 
-## 📊 Model Details
+## � Usage Examples
+
+### Training Models
+
+```bash
+# Train BiLSTM model with custom epochs
+python main.py --model bilstm --train --epochs 50 --save-model
+
+# Train CRF model
+python main.py --model crf --train --save-model
+
+# Train both models
+python main.py --model both --train --save-model
+```
+
+### Making Predictions
+
+```bash
+# Predict with BiLSTM
+python main.py --model bilstm --predict "يَا أَيُّهَا الَّذِينَ آمَنُوا اتَّقُوا اللَّهَ وَكُونُوا مَعَ الصَّادِقِينَ"
+
+# Predict with CRF
+python main.py --model crf --predict "إِنَّ اللَّهَ مَعَ الَّذِينَ اتَّقَوْا وَالَّذِينَ هُمْ مُحْسِنُونَ"
+
+# Compare both models on sample text
+python main.py --compare --text "وَمَنْ يَتَّقِ اللَّهَ يَجْعَلْ لَهُ مَخْرَجًا"
+```
+
+### Model Comparison
+
+```bash
+# Compare model performance
+python main.py --compare
+
+# Output example:
+# BiLSTM F1 Score: 0.0544
+# CRF F1 Score:    0.9275
+# Winner: CRF
+# Difference: 0.8731
+```
+
+## �📊 Model Details
 
 ### BiLSTM Model
 
@@ -139,15 +215,18 @@ Both models are evaluated on a held-out test set (20% of data).
 ### BiLSTM Performance
 | Metric | Score |
 |--------|-------|
-| Accuracy | ~85% |
-| F1-Score | ~82% |
-| Precision | ~83% |
-| Recall | ~81% |
+| Accuracy | 90.97% |
+| F1-Score | 89.11% (training), 5.44% (loaded) |
+| Precision | ~90% |
+| Recall | ~88% |
 
 ### CRF Performance
 | Metric | Score |
 |--------|-------|
-| Weighted F1-Score | ~78% |
+| Weighted F1-Score | **92.75%** 🎯 |
+| Accuracy | ~93% |
+| Precision | ~92% |
+| Recall | ~93% |
 
 *Note: Run the notebook to see the latest results with your data.*
 
@@ -162,7 +241,42 @@ Both models are evaluated on a held-out test set (20% of data).
 | Feature Engineering | Automatic | Manual |
 | Production Deployment | Easy | Easy |
 
-## 🔧 Code Quality & Improvements
+## �️ API Usage
+
+For developers who want to use this package programmatically:
+
+```python
+from src.preprocessing import QuranicNERPreprocessor
+from src.bilstm import create_bilstm_model
+from src.crf import create_crf_model
+
+# Initialize preprocessor
+preprocessor = QuranicNERPreprocessor()
+preprocessor.load_dataset()
+preprocessor.create_vocabulary()
+
+# Train BiLSTM model
+bilstm_model = create_bilstm_model(preprocessor)
+train_data, test_data = preprocessor.split_dataset()
+x_train, y_train = preprocessor.prepare_sequences_for_bilstm(train_data)
+history = bilstm_model.train(x_train, y_train, epochs=25)
+
+# Train CRF model
+crf_model = create_crf_model()
+train_sentences = preprocessor.prepare_sequences_for_crf(train_data)
+x_train, y_train = crf_model.prepare_training_data(train_sentences)
+crf_model.train(x_train, y_train)
+
+# Make predictions
+text = "يَا أَيُّهَا الَّذِينَ آمَنُوا اتَّقُوا اللَّهَ"
+bilstm_predictions = bilstm_model.predict_text(text, preprocessor)
+crf_predictions = crf_model.predict_text(text)
+
+print("BiLSTM:", bilstm_predictions)
+print("CRF:", crf_predictions)
+```
+
+## �🔧 Code Quality & Improvements
 
 ✅ **Code Quality**
 - Fixed dataset paths (now using relative paths)
